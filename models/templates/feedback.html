@@ -1,0 +1,41 @@
+{%  extends "base.html" %}
+
+{% block title %}
+    Feeback Page
+{% endblock %}
+
+{% block content %}
+<body>
+    <div class="container">
+
+        <h1>Feedback Form</h1>
+
+        <form method="POST" action="/feedback">
+
+            {{ form.firstname.label() }}
+            {{ form.feedback(class="form-control", placeholder="First Name") }}
+            <br>
+
+            {{ form.lastname.label() }}
+            {{ form.feedback(class="form-control", placeholder="Last Name") }}
+            <br>
+
+            {{ form.department.label() }}
+            {{ form.feedback(class="form-control", placeholder="Department of Employee") }}
+            <br>
+
+            {{ form.position.label() }}
+            {{ form.feedback(class="form-control", placeholder="Position of Employee") }}
+            <br>
+
+            {{ form.feedback.label() }}
+            {{ form.feedback(class="form-control", placeholder="Feedback") }}
+            <br>
+
+            {{ form.submit(class="btn btn-primary") }}
+        </form>
+
+    </div>
+
+</body>
+{% endblock %}
