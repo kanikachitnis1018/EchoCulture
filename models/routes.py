@@ -83,9 +83,18 @@ def login():
             flash('Username and Password do not match, try again', category='danger')
     return render_template('login.html', form=form)
 
-@app.route('/result', methods=['GET','POST'])
+@app.route('/result', methods=['GET', 'POST'])
 def result():
-    names_with_stars = db.session.query(Feedback.stars, User.firstname, User.lastname).join(User).all()
+    min_stars = request.args.get('min_stars', 0) 
+
+    names_with_stars = (
+        db.session.query(Feedback.stars, User.firstname, User.lastname)
+        .select_from(Feedback)
+        .join(User, Feedback.id == User.id)  
+        .filter(Feedback.stars >= min_stars)  
+        .all()
+    )
+
     stars = [feedback.stars for feedback in names_with_stars]
 
-    return render_template('result.html', stars=stars, names_with_stars=names_with_stars)
+    return render_template('result.html', stars=stars, names_with_stars=names_with_stars, zip=zip)

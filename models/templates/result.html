@@ -22,15 +22,15 @@
 
         <tbody>
           <div class='scrolling-container' id="autoscrollContainer">
-            {% for feedbacks, stars in zip(names_with_stars, stars): %}
+            {% for feedbacks, stars in zip(names_with_stars, stars) %}
                 <tr>
                   <td>{{ feedbacks.feedback }}</td>
                   <td>Rs. {{ feedbacks.stars }}</td>
                 </tr>
-            {% endfor %}
+            {% endfor %} 
             </div>
         </tbody>
-      </table>
+      </table>a
     
 <script>
   const scrollSpeed = 50;
@@ -49,6 +49,6 @@
   }
 
   setInterval(autoScroll, scrollSpeed);  
-<script>
+</script>
 
 {% endblock %}
