@@ -12,7 +12,18 @@
   }
 </style>
 
-    <table class="table w-35">
+    <div class="col-xs-10 col-sm-6 col-md-6">
+      <div class="card card-style- mb-2">
+          <div class="card-body">
+              <div class="chart-container" style="position: relative">
+                  <canvas id="stars_pie_chart"></canvas>
+              </div>
+          </div>
+      </div>
+    </div>
+
+    <table class="table">
+      <div>
         <thead>
           <tr>
             <th scope="col">Feeback</th>
@@ -37,28 +48,73 @@
                       </td>
                   </tr>
               {% endfor %}
-          {% endif %} 
+            {% endif %} 
             </div>
         </tbody>
-      </table>
+      </div>
+    </table>
     
-<<script>
+{% block javascript %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js">
   const scrollSpeed = 50;
-
   const scrollingContainer = document.getElementById('autoscrollContainer');
-
   const originalContent = scrollingContainer.innerHTML;
   scrollingContainer.innerHTML += originalContent;
-
   function autoScroll() {
-    if (scrollingContainer.scrollTop < scrollingContainer.scrollHeight / 2) {
+    if (scrollingContainer.scrollTop <script scrollingContainer.scrollHeight / 2) {
       scrollingContainer.scrollTop += 1;
     } else {
       scrollingContainer.scrollTop = 0;
     }
   }
-
   setInterval(autoScroll, scrollSpeed);  
+
+  let stars_plot = JSON.parse({{ stars_graph | tojson }})
+  let feedback_chart = new Chart(stars_graph , {
+    type: 'pie',
+    data: {
+    labels: ['1 stars', '2 stars', '3 stars', '4 stars', '5 stars'],
+        datasets: [{
+            label: "Feedback",
+            data: stars_plot,
+            backgroundColor: ['#5DA5DA ', '#FAA43A', '#60BD68',
+                '#B276B2', '#E16851', '#FB8267'],
+
+            borderWidth: 1,
+            hoverBorderColor: "black",
+            hoverBorderWidth: 2,
+            hoverBackgroundColor: 'rgba(154, 245, 140)',
+            pointHoverRadius: 5
+        }],
+    },
+    options: {
+            title: {
+                display: true,
+                    text: "Feeback",
+                        fontSize: 20,
+            },
+            legend: {
+                position: "right",
+                    labels: {
+                    fontColor: "gray"
+                },
+                display: true,
+            },
+
+            elements: {
+                hitRadius: 3,
+            },
+            scales: {
+                y: {
+                    ticks: {
+                        min: 0
+                    }
+                }
+            }
+    }
+})
+
 </script>
+{% endblock %}
 
 {% endblock %}

@@ -4,12 +4,13 @@ from models.forms import FeedbackForm, LoginForm, RegisterForm
 from models.models import Feedback, User #map_to_stars
 from models import db, app
 from flask import redirect, url_for, flash
+import json
 
 sentiment_model = NltkSentimentModel()
 
-#@app.route('/')
-#def index(): 
-#    return render_template('feedback.html', form=form)
+@app.route('/')
+def index(): 
+    return render_template('index.html')
 
 @app.route('/register', methods=['GET', 'POST'])
 def register_page():
@@ -75,4 +76,10 @@ def result():
                     .all()
                 )
 
-    return render_template('result.html', stars=stars, names_with_stars=names_with_stars, zip=zip)
+
+
+    return render_template('result.html', 
+                           stars=stars, 
+                           names_with_stars=names_with_stars, 
+                           zip=zip,
+                           stars_graph = json.dumps(stars))
