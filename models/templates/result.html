@@ -22,17 +22,27 @@
 
         <tbody>
           <div class='scrolling-container' id="autoscrollContainer">
-            {% for feedbacks, stars in zip(names_with_stars, stars) %}
-                <tr>
-                  <td>{{ feedbacks.feedback }}</td>
-                  <td>Rs. {{ feedbacks.stars }}</td>
-                </tr>
-            {% endfor %} 
+            {% if stars is not none %}
+              {% for feedbacks, stars_data in zip(names_with_stars, stars) %}
+                  <tr>
+                      <td>{{ feedbacks.feedback }}</td>
+                      <td>
+                          {% for score in stars_data %}
+                              <li>
+                                  Score: {{ score }} - Stars: 
+                                  {% set stars_count = score_to_stars(score) %}
+                                  {{ '⭐' * stars_count }}
+                              </li>
+                          {% endfor %}
+                      </td>
+                  </tr>
+              {% endfor %}
+          {% endif %} 
             </div>
         </tbody>
-      </table>a
+      </table>
     
-<script>
+<<script>
   const scrollSpeed = 50;
 
   const scrollingContainer = document.getElementById('autoscrollContainer');

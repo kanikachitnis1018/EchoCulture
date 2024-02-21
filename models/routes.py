@@ -1,53 +1,15 @@
 from flask import Flask, render_template, request
 from models.nltk_model import NltkSentimentModel
 from models.forms import FeedbackForm, LoginForm, RegisterForm
-from models.models import Feedback, User
+from models.models import Feedback, User #map_to_stars
 from models import db, app
 from flask import redirect, url_for, flash
 
 sentiment_model = NltkSentimentModel()
 
-def map_to_stars(score):
-    stars = " "
-    if score <= 0.2:
-        stars = "⭐"
-        return stars
-    elif score <= 0.4:
-        stars = "⭐⭐"
-        return stars
-    elif score <= 0.6:
-        stars = "⭐⭐⭐"
-        return stars
-    elif score <= 0.8:
-        stars = "⭐⭐⭐⭐"
-        return stars
-    else:
-        stars = "⭐⭐⭐⭐⭐"
-        return stars
-    
 #@app.route('/')
 #def index(): 
 #    return render_template('feedback.html', form=form)
-
-@app.route('/feedback', methods=['GET','POST'])
-def analyze():
-    form = FeedbackForm()
-    if form.validate_on_submit():
-        if request.method == 'POST':
-            user_text = request.form['user_text']
-            if user_text:
-                nltk_result = sentiment_model.predict_sentiment(user_text)
-                compound_score = nltk_result['compound_score']
-                stars = map_to_stars(compound_score)
-            feedback_to_create = Feedback(feedback = form.feedback.data,
-                                          stars=stars,
-                                          department = form.department.data,
-                                          position = form.position.data)
-            db.session.add(feedback_to_create)
-            db.session.commit()
-            return redirect(url_for('result'))
-
-    return render_template('feedback.html', form=form)
 
 @app.route('/register', methods=['GET', 'POST'])
 def register_page():
@@ -78,23 +40,39 @@ def login():
         attempted_user = User.query.filter_by(firstname=form.firstname.data).first()
         if attempted_user and attempted_user.check_password_correction(attempted_password=form.password.data):
             flash(f'Success! You are logged in as: {attempted_user.firstname} {attempted_user.lastname}', category='success')
-            return redirect(url_for('analyze'))  # Redirect to the 'analyze' (or 'feedback') route
+            return redirect(url_for('result'))  # Redirect to the 'analyze' (or 'feedback') route
         else:
             flash('Username and Password do not match, try again', category='danger')
     return render_template('login.html', form=form)
 
 @app.route('/result', methods=['GET', 'POST'])
 def result():
-    min_stars = request.args.get('min_stars', 0) 
+    form = FeedbackForm()
+    stars = None  # Default value if form is not submitted
+    names_with_stars = None  # Default value if form is not submitted
 
-    names_with_stars = (
-        db.session.query(Feedback.stars, User.firstname, User.lastname)
-        .select_from(Feedback)
-        .join(User, Feedback.id == User.id)  
-        .filter(Feedback.stars >= min_stars)  
-        .all()
-    )
+    if form.validate_on_submit():
+        if request.method == 'POST':
+            user_text = request.form['user_text']
+            if user_text:
+                nltk_result = sentiment_model.predict_sentiment(user_text)
+                compound_score = nltk_result['compound_score']
+                stars = map_to_stars(score=compound_score)
+                feedback_to_create = Feedback(feedback=form.feedback.data,
+                                              stars=stars,
+                                              department=form.department.data,
+                                              position=form.position.data)
+                db.session.add(feedback_to_create)
+                db.session.commit()
 
-    stars = [feedback.stars for feedback in names_with_stars]
+                min_stars = request.args.get('min_stars', 0) 
+
+                names_with_stars = (
+                    db.session.query(Feedback.stars, User.firstname, User.lastname)
+                    .select_from(Feedback)
+                    .join(User, Feedback.id == User.id)  
+                    .filter(Feedback.stars >= min_stars)  
+                    .all()
+                )
 
     return render_template('result.html', stars=stars, names_with_stars=names_with_stars, zip=zip)

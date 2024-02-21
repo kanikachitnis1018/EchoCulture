@@ -9,9 +9,23 @@ def load_user(user_id):
 class Feedback(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     feedback = db.Column(db.String(length=200), nullable = False)
-    stars = db.Column(db.String(length=5), nullable = False)
+    stars = db.Column(db.Integer(), nullable = False)
     department = db.Column(db.String(length=30), nullable = False)
     postion = db.Column(db.String(length= 80), nullable = False)
+    
+    def map_to_stars(score):
+        if score <= 0.2:
+            stars = 1
+        elif score <= 0.4:
+            stars = 2
+        elif score <= 0.6:
+            stars = 3
+        elif score <= 0.8:
+            stars = 4
+        else:
+            stars = 5
+        return stars
+        
 
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer(), primary_key=True)
